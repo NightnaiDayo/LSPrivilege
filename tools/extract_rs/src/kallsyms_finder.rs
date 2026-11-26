@@ -399,7 +399,10 @@ fn decode_addresses(
         return None;
     }
     let relative_base = read_u64(image, relative_base_offset)?;
-    if !is_arm64_kernel_address(relative_base) {
+    // Some vendor kernels store addresses relative to `_text` itself. In that
+    // layout `_text` is zero and the entries are image-relative offsets, so a
+    // zero base is valid; the anchor and image-span checks below validate it.
+    if relative_base != 0 && !is_arm64_kernel_address(relative_base) {
         return None;
     }
 
